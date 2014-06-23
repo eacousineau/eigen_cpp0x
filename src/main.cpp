@@ -4,9 +4,12 @@
 using namespace std;
 using namespace Eigen;
 
-template<typename Derived>
-void stuff(MatrixBase<Derived> &X)
-{
+template <typename MatrixExpression>
+void stuff(MatrixExpression&& X)
+{ 
+    typedef typename std::remove_reference<decltype(X.derived())>::type Derived;
+    static_assert( std::is_base_of< MatrixBase<Derived>, typename std::remove_reference<MatrixExpression>::type >::value, "Need a MatrixBase!");
+    
     cout << "[" << X.size() << "] " << X << endl;
     if (X.size() > 0)
         X(0) = 5.;
@@ -24,8 +27,8 @@ int main()
     MatrixXd::RowXpr row = X.row(1);
     stuff(row);
     
-    // This does not
-    // stuff(X.row(1));
+    // This now works
+    stuff(X.row(1));
     
     cout << endl << X << endl;
     
